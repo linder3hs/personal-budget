@@ -2,6 +2,7 @@
 // mediante el evento submit
 
 const form = document.querySelector("form");
+const transactionList = document.querySelector("#transaction-list");
 
 const transacciones = [];
 
@@ -29,6 +30,7 @@ function createMovement(movement) {
 
   if (validacion.ok) {
     transacciones.push(nuevoMovimiento);
+    nuevoMovimiento.render();
     alert(validacion.message);
     form.reset();
   } else {
@@ -51,11 +53,31 @@ function Movimiento(tipo, monto, descripcion) {
   this.tipo = tipo;
   this.monto = monto;
   this.descripcion = descripcion;
+  this.fecha = new Date();
 }
 
-// Movimiento.prototype.render = function () {
-//   // insertar la informacion en HTML
-// };
+Movimiento.prototype.render = function () {
+  const esEgreso = this.tipo === "expense";
+  const colorTexto = esEgreso ? "text-red-600" : "text-green-600";
+  const colorFondo = esEgreso ? "bg-red-50" : "bg-green-50";
+  const signo = esEgreso ? "-" : "+";
+
+  const newRow = `
+    <tr class="hover:${colorFondo} ${colorFondo}/30 transition-colors duration-200">
+      <td class="px-4 py-3 font-medium">${this.descripcion}</td>
+      <td class="px-4 py-3 ${colorTexto} font-bold">${signo}$${Math.abs(
+    this.monto
+  ).toFixed(2)}</td>
+      <td class="px-4 py-3 text-gray-500">${this.fecha}</td>
+      <td class="px-4 py-3">
+        <span class="inline-block rounded-full px-3 py-1 text-xs ${colorFondo} ${colorTexto}">
+          ${this.tipo}
+        </span>
+      </td>
+    </tr>
+  `;
+  transactionList.innerHTML += newRow;
+};
 
 // Retorne un boolean (true | false)
 Movimiento.prototype.validarMovimiento = function () {
